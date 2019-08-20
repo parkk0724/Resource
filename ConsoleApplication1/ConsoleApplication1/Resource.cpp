@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "Resource.h"
-#define SAFE_DELETE_ARRAY(x) if(x) delete []x; x = NULL;
+#include <cassert>
 
+#define SAFE_DELETE_ARRAY(x) if(x) delete []x; x = NULL;
+#define GCC_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#define SAFE_DELETE(p) {if(p) {delete(p); (p) = NULL;}}
 
 ResHandle::ResHandle(
 	Resource & resource, char * buffer, unsigned int size, ResCache * pResCache)
@@ -44,6 +47,10 @@ bool ResCache::Init()
 		retValue = true;
 	}
 	return retValue;
+}
+
+void ResCache::RegisterLoader(std::shared_ptr<IResourceLoader> loader)
+{
 }
 
 std::shared_ptr<ResHandle> ResCache::GetHandle(Resource * r)
@@ -92,7 +99,7 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 
 	if (loader->VUseRawFile())
 	{
-		buffer = rawbuffer;
+		buffer = rawBuffer;
 		handle = std::shared_ptr<ResHandle>(
 			GCC_NEW ResHandle(*r, buffer, rawSize, this));
 	}
@@ -120,11 +127,15 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 	if (handle)
 	{
 		m_lru.push_front(handle);
-		m_resource[r->m_name] = handle;
+		m_resources[r->m_name] = handle;
 	}
 
 	assert(loader && _T("Default resource loader not found!"));
 	return handle;	//ResCache is out of memory!
+}
+
+void ResCache::Free(std::shared_ptr<ResHandle> gonner)
+{
 }
 
 char *ResCache::Allocate(unsigned int size)
@@ -167,6 +178,10 @@ void ResCache::FreeOneResource()
 
 	m_lru.pop_back();
 	m_resources.erase(handle->m_resource.m_name);
+}
+
+void ResCache::MemoryHasBeenFreed(unsigned int size)
+{
 }
 
 
@@ -225,4 +240,8 @@ int ResCache::Preload(const std::string pattern, void(*progressCallback)(int, bo
 		}
 	}
 	return loaded;
+}
+
+void ResCache::Flush(void)
+{
 }
