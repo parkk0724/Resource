@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Resource.h"
+#include <string.h>
 #include <cassert>
 
 #define SAFE_DELETE_ARRAY(x) if(x) delete []x; x = NULL;
@@ -7,8 +8,7 @@
 #define SAFE_DELETE(p) {if(p) {delete(p); (p) = NULL;}}
 
 ResHandle::ResHandle(
-	Resource & resource, char * buffer, unsigned int size, ResCache * pResCache)
-	: m_resource(resource)
+	Resource & resource, char * buffer, unsigned int size, ResCache * pResCache) : m_resource(resource)
 {
 	m_buffer = buffer;
 	m_size = size;
@@ -62,6 +62,16 @@ std::shared_ptr<ResHandle> ResCache::GetHandle(Resource * r)
 		Update(handle);
 
 	return handle;
+}
+
+std::shared_ptr<ResHandle> ResCache::Find(Resource * r)
+{
+	return std::shared_ptr<ResHandle>();
+}
+
+const void * ResCache::Update(std::shared_ptr<ResHandle> handle)
+{
+	return nullptr;
 }
 
 std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
@@ -182,6 +192,7 @@ void ResCache::FreeOneResource()
 
 void ResCache::MemoryHasBeenFreed(unsigned int size)
 {
+
 }
 
 

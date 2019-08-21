@@ -13,11 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\ZipFile">
-      <UniqueIdentifier>{c070981e-b433-4b08-8918-c64282d501f6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Resource">
       <UniqueIdentifier>{8551ef95-a7b6-4113-ae66-d6b0a8618fe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Resource\ResCache">
+      <UniqueIdentifier>{4deab721-dc8a-4753-a393-4dc7a1712b2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Resource\ZipFile">
+      <UniqueIdentifier>{c070981e-b433-4b08-8918-c64282d501f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Resource\Utilities">
+      <UniqueIdentifier>{55308c36-ba5e-42db-8741-fd607c122e5a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,10 +31,16 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ZipFile.h">
-      <Filter>소스 파일\ZipFile</Filter>
+      <Filter>소스 파일\Resource\ZipFile</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>소스 파일\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="ResCache.h">
+      <Filter>소스 파일\Resource\ResCache</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>소스 파일\Resource\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -39,10 +51,16 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ZipFile.cpp">
-      <Filter>소스 파일\ZipFile</Filter>
+      <Filter>소스 파일\Resource\ZipFile</Filter>
     </ClCompile>
     <ClCompile Include="Resource.cpp">
       <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="ResCache.cpp">
+      <Filter>소스 파일\Resource\ResCache</Filter>
+    </ClCompile>
+    <ClCompile Include="String.cpp">
+      <Filter>소스 파일\Resource\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

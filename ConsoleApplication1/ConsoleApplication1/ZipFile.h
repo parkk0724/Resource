@@ -22,7 +22,7 @@ public:
 
 	//Added to show multi-threaded decompression - 멀티버퍼 압축해제
 	bool ReadLargeFile(int i, void *pBuf, void(*progressCallback)(int, bool &));
-	optional<int> Find(const std::string &path) const;
+	std::optional<int> Find(const std::string &path) const;
 	
 	ZipContentsMap m_ZipContentsMap;
 
