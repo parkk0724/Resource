@@ -10,15 +10,16 @@ int main()
 	
 }
 
+// >> zipfile 사용 예
 char* ZIPFile() {
 	char *buffer = NULL;
 	ZipFile zipFile;
-	if (zipFile.Init(resFileName))
+	if (zipFile.Init(L"resFileName"))
 	{
-		optional<int> index = zipFile.Find(path);
-		if (index.valid())
+		std::optional<int> index = zipFile.Find("path");
+		if (index.has_value())
 		{
-			int size = zipFile->GetFileLen(*index);
+			int size = zipFile.GetFileLen(*index);
 			buffer = new char[size];
 			if (buffer)
 			{
@@ -28,6 +29,38 @@ char* ZIPFile() {
 	}
 	return buffer;
 }
+
+
+//Resource 사용 예
+/*
+	ResourceZipFile zipFile("Assets.zip");
+	ResCache resCache(50, zipFile);
+	if(m_ResCache.Init())
+	{
+		Resource resource("art\\brict.bmp");
+		std::shared_ptr<ResHandle> texture =  g_pApp->m_ResCache->GetHandle(&resource);
+		int size = texture->GetSize();
+		char *brickBitmap = (char*) texture->Buffer();
+		//do something cool with brickBitmap!
+
+
+*/
+
+//Caching Resources into DirectX et al.
+/*
+	Resource resource(m_params.m_Texture);
+	std::shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
+	if( FAILED(
+		D3DXCreateTextureFromFileInMemory(
+			DXUTGetD3D9Device(),
+			texture->Buffer(),
+			texture->Size(),
+			&m_pTexture)))
+	{
+		return E_FAIL;
+	}
+*/
+
 
 // 프로그램 실행: <Ctrl+F5> 또는 [디버그] > [디버깅하지 않고 시작] 메뉴
 // 프로그램 디버그: <F5> 키 또는 [디버그] > [디버깅 시작] 메뉴

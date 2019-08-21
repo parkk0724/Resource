@@ -32,7 +32,7 @@ extern std::string ToStr(unsigned long num, int base = 10);
 extern std::string ToStr(float num);
 extern std::string ToStr(double num);
 extern std::string ToStr(bool val);
-extern std::string ToStr(const Vec3& vec);
+//extern std::string ToStr(const Vec3& vec);
 
 extern std::string ws2s(const std::wstring& s);
 extern std::wstring s2ws(const std::string &s);

@@ -25,6 +25,15 @@
     <Filter Include="소스 파일\Resource\Utilities">
       <UniqueIdentifier>{55308c36-ba5e-42db-8741-fd607c122e5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\GameCode">
+      <UniqueIdentifier>{b558ffc8-2464-4320-8804-3a526c0a0972}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Debugging">
+      <UniqueIdentifier>{5befaac0-e02b-4757-9190-28ab65b527fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Resource\XMLResource">
+      <UniqueIdentifier>{57df18cc-295f-48d6-8d44-276b155fa53e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -41,6 +50,18 @@
     </ClInclude>
     <ClInclude Include="String.h">
       <Filter>소스 파일\Resource\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCodeApp.h">
+      <Filter>소스 파일\GameCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>소스 파일\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="CriticalSection.h">
+      <Filter>소스 파일\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLResource.h">
+      <Filter>소스 파일\Resource\XMLResource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +82,18 @@
     </ClCompile>
     <ClCompile Include="String.cpp">
       <Filter>소스 파일\Resource\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCodeApp.cpp">
+      <Filter>소스 파일\GameCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging.cpp">
+      <Filter>소스 파일\Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>소스 파일\Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="XMLResource.cpp">
+      <Filter>소스 파일\Resource\XMLResource</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

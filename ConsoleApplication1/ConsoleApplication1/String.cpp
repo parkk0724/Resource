@@ -64,11 +64,6 @@ int CountLines(const std::wstring &s)
 }
 *********************/
 
-
-// The following function was found on http://xoomer.virgilio.it/acantato/dev/wildcard/wildmatch.html, where it was attributed to 
-// the C/C++ Users Journal, written by Mike Cornelison. It is a little ugly, but it is FAST. Use this as an excercise in not reinventing the
-// wheel, even if you see gotos. 
-
 BOOL WildcardMatch(const char *pat, const char *str) {
 	int i, star;
 
@@ -319,11 +314,11 @@ string ToStr(bool val)
 {
 	return (string((val == true ? "true" : "false")));
 }
-
-string ToStr(const Vec3& vec)
-{
-	return string("(" + ToStr(vec.x) + "," + ToStr(vec.y) + "," + ToStr(vec.z) + ")");
-}
+//
+//string ToStr(const Vec3& vec)
+//{
+//	return string("(" + ToStr(vec.x) + "," + ToStr(vec.y) + "," + ToStr(vec.z) + ")");
+//}
 
 
 

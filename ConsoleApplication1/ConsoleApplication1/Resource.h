@@ -1,5 +1,6 @@
 #pragma once
 #include "ResCache.h"
+#include <cctype>
 
 class Resource
 {
@@ -29,7 +30,8 @@ public:
 	virtual int VGetRawResource(const Resource &r, char *buffer) = 0;
 	virtual int VGetNumResources() const = 0;
 	virtual std::string VGetResourceName(int num) const = 0;
-	virtual ~IResourceFile() {}
+	virtual bool VIsUsingDevelopmentDirectories(void) const = 0;
+	virtual ~IResourceFile() { }
 };
 
 class ResHandle
@@ -59,23 +61,18 @@ class IResourceLoader
 public:
 	virtual std::string VGetPattern() = 0;
 	virtual bool VUseRawFile() = 0;
-	virtual unsigned int VGetLoadedResourceSize(
-		char *rawBuffer, unsigned int rawSize) = 0;
-	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize,
-		std::shared_ptr<ResHandle> handle) = 0;
+	virtual bool VDiscardRawBufferAfterLoad() = 0;
+	virtual bool VAddNullZero() { return false; }
+	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) = 0;
+	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, shared_ptr<ResHandle> handle) = 0;
 };
 
 class DefalultResourceLoader : public IResourceLoader
 {
 public:
 	virtual bool VUseRawFile() { return true; }
-	virtual unsigned int VGetLoadedResourceSize(char * rawBuffer, unsigned int rawSize) {
-		return rawSize; }
-	virtual bool VLoadResource(char * rawBuffer, unsigned int rawSize,
-		std::shared_ptr<ResHandle>handle) {	return true; }
+	virtual bool VDiscardRawBufferAfterLoad() { return true; }
+	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) { return rawSize; }
+	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, shared_ptr<ResHandle> handle) { return true; }
 	virtual std::string VGetPattern() { return "*"; }
 };
-
-typedef std::list<std::shared_ptr <ResHandle>>ResHandleList;
-typedef std::map<std::string, std::shared_ptr<ResHandle>>ResHandleMap;
-typedef std::initializer_list<std::shared_ptr<IResourceLoader>>ResourceLoaders;
