@@ -4,10 +4,22 @@
 #include "pch.h"
 #include <iostream>
 #include "ZipFile.h"
+#include "Resource.h"
 
 int main()
 {
-	
+	//Resource 사용 예
+	// m_ResCache, g_pApp = GameCode 멤버변수
+	ResourceZipFile zipFile("Assets.zip");
+	ResCache resCache(50, zipFile);
+	if (m_ResCache.Init())
+	{
+		Resource resource("art\\brict.bmp");
+		std::shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
+		int size = texture->GetSize();
+		char *brickBitmap = (char*)texture->Buffer();
+	}
+		//do something cool with brickBitmap!
 }
 
 // >> zipfile 사용 예
@@ -17,34 +29,18 @@ char* ZIPFile() {
 	if (zipFile.Init(L"resFileName"))
 	{
 		std::optional<int> index = zipFile.Find("path");
-		if (index.has_value())
+		if (index.has_value()) // 값이 있는지 확인
 		{
-			int size = zipFile.GetFileLen(*index);
-			buffer = new char[size];
-			if (buffer)
+			int size = zipFile.GetFileLen(*index); // 압축하지 않은 file의 크기를 읽어옴. 파일을 찾지 못하면 -1 리턴
+			buffer = new char[size]; // 사이즈만큼 버퍼 메모리 할당.
+			if (buffer) // 
 			{
-				zipFile.ReadFile(*index, buffer);
+				zipFile.ReadFile(*index, buffer); // zlib사용해서 버퍼에 파일을 읽어옴.
 			}
 		}
 	}
 	return buffer;
 }
-
-
-//Resource 사용 예
-/*
-	ResourceZipFile zipFile("Assets.zip");
-	ResCache resCache(50, zipFile);
-	if(m_ResCache.Init())
-	{
-		Resource resource("art\\brict.bmp");
-		std::shared_ptr<ResHandle> texture =  g_pApp->m_ResCache->GetHandle(&resource);
-		int size = texture->GetSize();
-		char *brickBitmap = (char*) texture->Buffer();
-		//do something cool with brickBitmap!
-
-
-*/
 
 //Caching Resources into DirectX et al.
 /*

@@ -269,10 +269,12 @@ int ZipFile::GetFileLen(int i) const
 std::optional<int> ZipFile::Find(const std::string & path) const
 {
 	std::string lowerCase = path;
-	std::transform(lowerCase.begin(), lowerCase.end(), lowerCase.begin(), (int(*)(int)) std::tolower);
-	ZipContentsMap::const_iterator i = m_ZipContentsMap.find(lowerCase);
-	if (i == m_ZipContentsMap.end())
-		return std::nullopt;
+	std::transform(lowerCase.begin(), lowerCase.end(), lowerCase.begin(), (int(*)(int)) std::tolower); // tolower -> 소문자 변환
+	// transform -> 범위 내 원소들 각각에 대해  인자로 전달한 함수를 실행한 후, 그 결과를 d_first부터 쭉 기록.
+	// ( transform( 원소들을 가리키는 범위, 두 번째 인자들의 시작, 결과를 저장할 범위, 방식, 원소들을 전달할 단항 함수); )
+	ZipContentsMap::const_iterator i = m_ZipContentsMap.find(lowerCase);  // find -> 해당 하는 항목이 존재하는지 판단. 
+	if (i == m_ZipContentsMap.end()) // 존재하는지 확인 
+		return std::nullopt; // 존재하지 않음
 
-	return i->second;
+	return i->second; // i의 두번째 원소 value 리턴;
 }

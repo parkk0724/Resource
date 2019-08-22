@@ -95,7 +95,7 @@ struct ZipFile::TZipDirFileHeader
 	word modDate;
 	dword crc32;
 	dword cSize;	// Compressed size - 압축 크기
-	dword ucSize;	// Uncompressed size - 압추갛지 않은 크기
+	dword ucSize;	// Uncompressed size - 압축하지 않은 크기
 	word fnameLen;	// Filename string follows header. - 파일 이름
 	word xtraLen;	// Extra field follows filename. - 추가 필드는 파일 이름
 	word cmntLen;	// Comment field follows extra field. - 주석 필드
