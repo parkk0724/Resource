@@ -1,10 +1,20 @@
-#include "pch.h"
 #include "ResCache.h"
-#include "String.h"
+#include "Resource.h"
 
-typedef std::list<std::shared_ptr <ResHandle>>ResHandleList;
-typedef std::map<std::string, std::shared_ptr<ResHandle>>ResHandleMap;
-typedef std::list<std::shared_ptr<IResourceLoader>>ResourceLoaders;
+ResHandle::ResHandle(Resource & resource, char * buffer, unsigned int size, ResCache * pResCache)
+	: m_resource(resource)
+{
+	m_buffer = buffer;
+	m_size = size;
+	m_extra = NULL;
+	m_pResCache = pResCache;
+}
+
+ResHandle::~ResHandle() 
+{
+	SAFE_DELETE_ARRAY(m_buffer);
+	m_pResCache->MemoryHasBeenFreed(m_size);
+}
 
 ResCache::ResCache(const unsigned int sizeInMb, IResourceFile *resFile)
 {
@@ -27,7 +37,7 @@ bool ResCache::Init()
 	bool retValue = false;
 	if (m_file->VOpen())
 	{
-		RegisterLoader(std::shared_ptr<IResourceLoader>(GCC_NEW DefalultResourceLoader()));
+		RegisterLoader(std::shared_ptr<IResourceLoader>(new DefalultResourceLoader()));
 		retValue = true;
 	}
 	return retValue;
@@ -42,10 +52,14 @@ std::shared_ptr<ResHandle> ResCache::GetHandle(Resource * r)
 {
 	std::shared_ptr<ResHandle> handle(Find(r));
 	if (handle == NULL)
+	{
 		handle = Load(r);
+		assert(handle);
+	}
 	else
+	{
 		Update(handle);
-
+	}
 	return handle;
 }
 
@@ -53,12 +67,12 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 {
 	// Create a new resource and add it to the lru list and map
 
-	shared_ptr<IResourceLoader> loader;
-	shared_ptr<ResHandle> handle;
+	std::shared_ptr<IResourceLoader> loader;
+	std::shared_ptr<ResHandle> handle;
 
 	for (ResourceLoaders::iterator it = m_resourceLoaders.begin(); it != m_resourceLoaders.end(); ++it)
 	{
-		shared_ptr<IResourceLoader> testLoader = *it;
+		std::shared_ptr<IResourceLoader> testLoader = *it;
 
 		if (WildcardMatch(testLoader->VGetPattern().c_str(), r->m_name.c_str()))
 		{
@@ -69,25 +83,25 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 
 	if (!loader)
 	{
-		GCC_ASSERT(loader && _T("Default resource loader not found!"));
+		assert(loader && (L"Default resource loader not found!"));
 		return handle;		// Resource not loaded!
 	}
 
 	int rawSize = m_file->VGetRawResourceSize(*r);
 	if (rawSize < 0)
 	{
-		GCC_ASSERT(rawSize > 0 && "Resource size returned -1 - Resource not found");
-		return shared_ptr<ResHandle>();
+		assert(rawSize > 0 && "Resource size returned -1 - Resource not found");
+		return std::shared_ptr<ResHandle>();
 	}
 
 	int allocSize = rawSize + ((loader->VAddNullZero()) ? (1) : (0));
-	char *rawBuffer = loader->VUseRawFile() ? Allocate(allocSize) : GCC_NEW char[allocSize];
+	char *rawBuffer = loader->VUseRawFile() ? Allocate(allocSize) : new char[allocSize];
 	memset(rawBuffer, 0, allocSize);
 
 	if (rawBuffer == NULL || m_file->VGetRawResource(*r, rawBuffer) == 0)
 	{
 		// resource cache out of memory
-		return shared_ptr<ResHandle>();
+		return std::shared_ptr<ResHandle>();
 	}
 
 	char *buffer = NULL;
@@ -96,7 +110,7 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 	if (loader->VUseRawFile())
 	{
 		buffer = rawBuffer;
-		handle = shared_ptr<ResHandle>(GCC_NEW ResHandle(*r, buffer, rawSize, this));
+		handle = std::shared_ptr<ResHandle>(new ResHandle(*r, buffer, rawSize, this));
 	}
 	else
 	{
@@ -105,9 +119,9 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 		if (rawBuffer == NULL || buffer == NULL)
 		{
 			// resource cache out of memory
-			return shared_ptr<ResHandle>();
+			return std::shared_ptr<ResHandle>();
 		}
-		handle = shared_ptr<ResHandle>(GCC_NEW ResHandle(*r, buffer, size, this));
+		handle = std::shared_ptr<ResHandle>(new ResHandle(*r, buffer, size, this));
 		bool success = loader->VLoadResource(rawBuffer, rawSize, handle);
 
 		// [mrmike] - This was added after the chapter went to copy edit. It is used for those
@@ -123,7 +137,7 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 		if (!success)
 		{
 			// resource cache out of memory
-			return shared_ptr<ResHandle>();
+			return std::shared_ptr<ResHandle>();
 		}
 	}
 
@@ -133,15 +147,15 @@ std::shared_ptr<ResHandle> ResCache::Load(Resource * r)
 		m_resources[r->m_name] = handle;
 	}
 
-	GCC_ASSERT(loader && _T("Default resource loader not found!"));
+	assert(loader && (L"Default resource loader not found!"));
 	return handle;		// ResCache is out of memory!
 }
 
-shared_ptr<ResHandle> ResCache::Find(Resource * r)
+std::shared_ptr<ResHandle> ResCache::Find(Resource * r)
 {
 	ResHandleMap::iterator i = m_resources.find(r->m_name);
 	if (i == m_resources.end())
-		return shared_ptr<ResHandle>();
+		return std::shared_ptr<ResHandle>();
 
 	return i->second;
 }
@@ -149,7 +163,7 @@ shared_ptr<ResHandle> ResCache::Find(Resource * r)
 //
 // ResCache::Update									- Chapter 8, page 228
 //
-void ResCache::Update(shared_ptr<ResHandle> handle)
+void ResCache::Update(std::shared_ptr<ResHandle> handle)
 {
 	m_lru.remove(handle);
 	m_lru.push_front(handle);
@@ -160,7 +174,7 @@ char *ResCache::Allocate(unsigned int size)
 	if (!MakeRoom(size))
 		return NULL;
 
-	char *mem = GCC_NEW char[size];
+	char *mem = new char[size];
 	if (mem)
 		m_allocated += size;
 
@@ -189,10 +203,15 @@ void ResCache::Flush()
 {
 	while (!m_lru.empty())
 	{
-		shared_ptr<ResHandle> handle = *(m_lru.begin());
+		std::shared_ptr<ResHandle> handle = *(m_lru.begin());
 		Free(handle);
 		m_lru.pop_front();
 	}
+}
+
+bool ResCache::IsUsingDevelopmentDirectories(void) const
+{
+	assert(m_file); return m_file->VIsUsingDevelopmentDirectories();
 }
 
 bool ResCache::MakeRoom(unsigned int size)
@@ -215,7 +234,7 @@ bool ResCache::MakeRoom(unsigned int size)
 	return true;
 }
 
-void ResCache::Free(shared_ptr<ResHandle> gonner)
+void ResCache::Free(std::shared_ptr<ResHandle> gonner)
 {
 	m_lru.remove(gonner);
 	m_resources.erase(gonner->m_resource.m_name);
@@ -278,4 +297,39 @@ int ResCache::Preload(const std::string pattern, void(*progressCallback)(int, bo
 		}
 	}
 	return loaded;
+}
+
+bool WildcardMatch(const char *pat, const char *str) {
+	int i, star;
+
+new_segment:
+
+	star = 0;
+	if (*pat == '*') {
+		star = 1;
+		do { pat++; } while (*pat == '*'); /* enddo */
+	} /* endif */
+
+test_match:
+
+	for (i = 0; pat[i] && (pat[i] != '*'); i++) {
+		//if (mapCaseTable[str[i]] != mapCaseTable[pat[i]]) {
+		if (str[i] != pat[i]) {
+			if (!str[i]) return 0;
+			if ((pat[i] == '?') && (str[i] != '.')) continue;
+			if (!star) return 0;
+			str++;
+			goto test_match;
+		}
+	}
+	if (pat[i] == '*') {
+		str += i;
+		pat += i;
+		goto new_segment;
+	}
+	if (!str[i]) return 1;
+	if (i && pat[i - 1] == '*') return 1;
+	if (!star) return 0;
+	str++;
+	goto test_match;
 }

@@ -1,6 +1,13 @@
 #pragma once
-#include "ResCache.h"
-#include <cctype>
+#include <vector>
+#define SAFE_DELETE(x) if(x) delete x; x=NULL;
+
+
+class IResourceExtraData
+{
+public:
+	virtual std::string VToString() = 0;
+};
 
 class Resource
 {
@@ -13,14 +20,51 @@ public:
 	}
 };
 
-//리소스 사용 방법의 예
-/*
-	Resource resource ("Brick.bmp");
-	shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
-	int size = texture->GetSize();
-	char *brickBitmap = (char*) texture->Buffer();
-*/
+class ResourceZipFile : public IResourceFile
+{
+	ZipFile *m_pZipFile;
+	std::wstring m_resFileName;
 
+public:
+	ResourceZipFile(const std::wstring resFileName) { m_pZipFile = NULL; m_resFileName = resFileName; }
+	virtual ~ResourceZipFile();
+
+	virtual bool VOpen();
+	virtual int VGetRawResourceSize(const Resource &r);
+	virtual int VGetRawResource(const Resource &r, char *buffer);
+	virtual int VGetNumResources() const;
+	virtual std::string VGetResourceName(int num) const;
+	virtual bool VIsUsingDevelopmentDirectories(void) const { return false; }
+};
+
+class DevelopmentResourceZipFile : public ResourceZipFile
+{
+public:
+	enum Mode
+	{
+		Development,	// this mode checks the original asset directory for changes - helps during development
+		Editor			// this mode only checks the original asset directory - the ZIP file is left unopened.
+	};
+
+	Mode m_mode;
+	std::wstring m_AssetsDir;
+	std::vector<WIN32_FIND_DATA> m_AssetFileInfo;
+	ZipContentsMap m_DirectoryContentsMap;
+
+	DevelopmentResourceZipFile(const std::wstring resFileName, const Mode mode);
+
+	virtual bool VOpen();
+	virtual int VGetRawResourceSize(const Resource &r);
+	virtual int VGetRawResource(const Resource &r, char *buffer);
+	virtual int VGetNumResources() const;
+	virtual std::string VGetResourceName(int num) const;
+	virtual bool VIsUsingDevelopmentDirectories(void) const { return true; }
+
+	int Find(const std::string &path);
+
+protected:
+	void ReadAssetsDirectory(std::wstring fileSpec);
+};
 
 class IResourceFile
 {
@@ -32,28 +76,6 @@ public:
 	virtual std::string VGetResourceName(int num) const = 0;
 	virtual bool VIsUsingDevelopmentDirectories(void) const = 0;
 	virtual ~IResourceFile() { }
-};
-
-class ResHandle
-{
-	friend class ResCache;
-
-protected:
-	Resource m_resource;
-	char * m_buffer;
-	unsigned int m_size;
-	std::shared_ptr<IResourceExtraData> m_extra;
-	ResCache *m_pResCache;
-
-public:
-	ResHandle(Resource & resource, char * buffer, unsigned int size, ResCache * pResCache);
-	virtual ~ResHandle();
-
-	unsigned int Size() const { return m_size; }
-	char *buffer() const { return m_buffer; }
-	char *WritableBuffer() { return m_buffer; }
-	std::shared_ptr<IResourceExtraData>GetExtra() { return m_extra; }
-	void SetExtra(std::shared_ptr<IResourceExtraData> extra) { m_extra = extra; }
 };
 
 class IResourceLoader
@@ -76,3 +98,12 @@ public:
 	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, shared_ptr<ResHandle> handle) { return true; }
 	virtual std::string VGetPattern() { return "*"; }
 };
+
+
+//리소스 사용 방법의 예
+/*
+	Resource resource ("Brick.bmp");
+	shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
+	int size = texture->GetSize();
+	char *brickBitmap = (char*) texture->Buffer();
+*/

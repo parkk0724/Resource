@@ -1,7 +1,14 @@
 #pragma once
 
+#include <optional>
+#include <algorithm>
+#include <assert.h>
+#include <zlib.h>
+#include <cctype>
 #include <string>
+#include <optional>
 #include <map>
+#define SAFE_DELETE_ARRAY(x) if(x) delete[] x; x = NULL;
 
 //This maps a path to zip content id - zip 알림 ID에 대한 경로를 매핑
 typedef std::map<std::string, int> ZipContentsMap;
@@ -16,7 +23,7 @@ public:
 
 	int GetNumFiles()const { return m_nEntries; }
 	std::string GetFilename(int i) const;
-	int GetFileLen(int i)const;
+	int GetFileLen(std::optional<int> i)const;
 	bool ReadFile(int i, void *pBuf);
 
 	//Added to show multi-threaded decompression - 멀티버퍼 압축해제
@@ -28,7 +35,7 @@ public:
 private:
 	struct TZipDirHeader;
 	struct TZipDirFileHeader;
-	struct TZipLocaHeader;
+	struct TZipLocalHeader;
 
 	FILE * m_pFile;		// Zip file - 압축파일
 	char *m_pDirData;	// Raw data buffer. - 윈시 데이터 버퍼
@@ -51,7 +58,7 @@ typedef unsigned char byte;
 
 #pragma pack(1)
 // --------------------------------------------------------------------------------
-struct ZipFile::TZipLocaHeader
+struct ZipFile::TZipLocalHeader
 {
 	enum
 	{

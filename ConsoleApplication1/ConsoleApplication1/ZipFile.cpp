@@ -1,6 +1,4 @@
-#include "pch.h"
 #include "ZipFile.h"
-#include <cctype>
 
 //#include <zlib.h> << zlib가 필요함.
 
@@ -8,7 +6,7 @@ bool ZipFile::Init(const std::wstring & resFileName)
 {
 	End();
 
-	_wfopen_s(&m_pFile, resFileName.c_str(), _T("rb")); // _wfopen_s -> 유니코드로 된 파일을 불러올 때 ( _wfopen_s(파일포인터, 파일이름, 모드); )
+	_wfopen_s(&m_pFile, resFileName.c_str(), L"rb"); // _wfopen_s -> 유니코드로 된 파일을 불러올 때 ( _wfopen_s(파일포인터, 파일이름, 모드); )
 	// rb -> r + b >> r(읽기모드), b(binary[이진모드])
 
 	if (!m_pFile)
@@ -32,7 +30,7 @@ bool ZipFile::Init(const std::wstring & resFileName)
 	fseek(m_pFile, dhOffset - dh.dirSize, SEEK_SET);
 
 	// Allocate the data buffer, and read the whole thing. - 데이터 버퍼를 할당하고 전체 내용을 읽습니다.
-	m_pDirData = GCC_NEW char[dh.dirSize + dh.nDirEntries * sizeof(*m_papDir)];
+	m_pDirData = new char[dh.dirSize + dh.nDirEntries * sizeof(*m_papDir)];
 	if (!m_pDirData)
 		return false;
 	memset(m_pDirData, 0, dh.dirSize + dh.nDirEntries * sizeof(*m_papDir));
@@ -107,164 +105,164 @@ std::string ZipFile::GetFilename(int i) const
 	return fileName;
 }
 
-int ZipFile::GetFileLen(int i) const
+int ZipFile::GetFileLen(std::optional<int> i) const
 {
 	if (i < 0 || i >= m_nEntries)
 		return -1;
 	else
-		return m_papDir[i]->ucSize;
+		return m_papDir[i.value()]->ucSize;
 }
 
-//bool ZipFile::ReadFile(int i, void * pBuf)
-//{
-//	if (pBuf == NULL || i < 0 || i >= m_nEntries)
-//		return false;
-//
-//	// Quick'n dirty read, the whole file at once.
-//	// Ungood if the ZIP has huge files inside
-//
-//	// Go to the actual file and read the local header.
-//	fseek(m_pFile, m_papDir[i]->hdrOffset, SEEK_SET);
-//	TZipLocalHeader h;
-//
-//	memset(&h, 0, sizeof(h));
-//	fread(&h, sizeof(h), 1, m_pFile);
-//	if (h.sig != TZipLocalHeader::SIGNATURE)
-//		return false;
-//
-//	// Skip extra fields
-//	fseek(m_pFile, h.fnameLen + h.xtraLen, SEEK_CUR);
-//
-//	if (h.compression == Z_NO_COMPRESSION)
-//	{
-//		// Simply read in raw stored data.
-//		fread(pBuf, h.cSize, 1, m_pFile);
-//		return true;
-//	}
-//	else if (h.compression != Z_DEFLATED)
-//		return false;
-//
-//	// Alloc compressed data buffer and read the whole stream
-//	char *pcData = GCC_NEW char[h.cSize];
-//	if (!pcData)
-//		return false;
-//
-//	memset(pcData, 0, h.cSize);
-//	fread(pcData, h.cSize, 1, m_pFile);
-//
-//	bool ret = true;
-//
-//	// Setup the inflate stream.
-//	z_stream stream;
-//	int err;
-//
-//	stream.next_in = (Bytef*)pcData;
-//	stream.avail_in = (uInt)h.cSize;
-//	stream.next_out = (Bytef*)pBuf;
-//	stream.avail_out = h.ucSize;
-//	stream.zalloc = (alloc_func)0;
-//	stream.zfree = (free_func)0;
-//
-//	// Perform inflation. wbits < 0 indicates no zlib header inside the data.
-//	err = inflateInit2(&stream, -MAX_WBITS);
-//	if (err == Z_OK)
-//	{
-//		err = inflate(&stream, Z_FINISH);
-//		inflateEnd(&stream);
-//		if (err == Z_STREAM_END)
-//			err = Z_OK;
-//		inflateEnd(&stream);
-//	}
-//	if (err != Z_OK)
-//		ret = false;
-//
-//	delete[] pcData;
-//	return ret; return false;
-//}
+bool ZipFile::ReadFile(int i, void * pBuf)
+{
+	if (pBuf == NULL || i < 0 || i >= m_nEntries)
+		return false;
 
-//bool ZipFile::ReadLargeFile(int i, void * pBuf, void(*progressCallback)(int, bool &))
-//{
-//	if (pBuf == NULL || i < 0 || i >= m_nEntries)
-//		return false;
-//
-//	// Quick'n dirty read, the whole file at once.
-//	// Ungood if the ZIP has huge files inside
-//
-//	// Go to the actual file and read the local header.
-//	fseek(m_pFile, m_papDir[i]->hdrOffset, SEEK_SET);
-//	TZipLocalHeader h;
-//
-//	memset(&h, 0, sizeof(h));
-//	fread(&h, sizeof(h), 1, m_pFile);
-//	if (h.sig != TZipLocalHeader::SIGNATURE)
-//		return false;
-//
-//	// Skip extra fields
-//	fseek(m_pFile, h.fnameLen + h.xtraLen, SEEK_CUR);
-//
-//	if (h.compression == Z_NO_COMPRESSION)
-//	{
-//		// Simply read in raw stored data.
-//		fread(pBuf, h.cSize, 1, m_pFile);
-//		return true;
-//	}
-//	else if (h.compression != Z_DEFLATED)
-//		return false;
-//
-//	// Alloc compressed data buffer and read the whole stream
-//	char *pcData = GCC_NEW char[h.cSize];
-//	if (!pcData)
-//		return false;
-//
-//	memset(pcData, 0, h.cSize);
-//	fread(pcData, h.cSize, 1, m_pFile);
-//
-//	bool ret = true;
-//
-//	// Setup the inflate stream.
-//	z_stream stream;
-//	int err;
-//
-//	stream.next_in = (Bytef*)pcData;
-//	stream.avail_in = (uInt)h.cSize;
-//	stream.next_out = (Bytef*)pBuf;
-//	stream.avail_out = (128 * 1024); //  read 128k at a time h.ucSize;
-//	stream.zalloc = (alloc_func)0;
-//	stream.zfree = (free_func)0;
-//
-//	// Perform inflation. wbits < 0 indicates no zlib header inside the data.
-//	err = inflateInit2(&stream, -MAX_WBITS);
-//	if (err == Z_OK)
-//	{
-//		uInt count = 0;
-//		bool cancel = false;
-//		while (stream.total_in < (uInt)h.cSize && !cancel)
-//		{
-//			err = inflate(&stream, Z_SYNC_FLUSH);
-//			if (err == Z_STREAM_END)
-//			{
-//				err = Z_OK;
-//				break;
-//			}
-//			else if (err != Z_OK)
-//			{
-//				GCC_ASSERT(0 && "Something happened.");
-//				break;
-//			}
-//
-//			stream.avail_out = (128 * 1024);
-//			stream.next_out += stream.total_out;
-//
-//			progressCallback(count * 100 / h.cSize, cancel);
-//		}
-//		inflateEnd(&stream);
-//	}
-//	if (err != Z_OK)
-//		ret = false;
-//
-//	delete[] pcData;
-//	return ret;
-//}
+	// Quick'n dirty read, the whole file at once.
+	// Ungood if the ZIP has huge files inside
+
+	// Go to the actual file and read the local header.
+	fseek(m_pFile, m_papDir[i]->hdrOffset, SEEK_SET);
+	TZipLocalHeader h;
+
+	memset(&h, 0, sizeof(h));
+	fread(&h, sizeof(h), 1, m_pFile);
+	if (h.sig != TZipLocalHeader::SIGNATURE)
+		return false;
+
+	// Skip extra fields
+	fseek(m_pFile, h.fnameLen + h.xtraLen, SEEK_CUR);
+
+	if (h.compression == Z_NO_COMPRESSION)
+	{
+		// Simply read in raw stored data.
+		fread(pBuf, h.cSize, 1, m_pFile);
+		return true;
+	}
+	else if (h.compression != Z_DEFLATED)
+		return false;
+
+	// Alloc compressed data buffer and read the whole stream
+	char *pcData = new char[h.cSize];
+	if (!pcData)
+		return false;
+
+	memset(pcData, 0, h.cSize);
+	fread(pcData, h.cSize, 1, m_pFile);
+
+	bool ret = true;
+
+	// Setup the inflate stream.
+	z_stream stream;
+	int err;
+
+	stream.next_in = (Bytef*)pcData;
+	stream.avail_in = (uInt)h.cSize;
+	stream.next_out = (Bytef*)pBuf;
+	stream.avail_out = h.ucSize;
+	stream.zalloc = (alloc_func)0;
+	stream.zfree = (free_func)0;
+
+	// Perform inflation. wbits < 0 indicates no zlib header inside the data.
+	err = inflateInit2(&stream, -MAX_WBITS);
+	if (err == Z_OK)
+	{
+		err = inflate(&stream, Z_FINISH);
+		inflateEnd(&stream);
+		if (err == Z_STREAM_END)
+			err = Z_OK;
+		inflateEnd(&stream);
+	}
+	if (err != Z_OK)
+		ret = false;
+
+	delete[] pcData;
+	return ret; return false;
+}
+
+bool ZipFile::ReadLargeFile(int i, void * pBuf, void(*progressCallback)(int, bool &))
+{
+	if (pBuf == NULL || i < 0 || i >= m_nEntries)
+		return false;
+
+	// Quick'n dirty read, the whole file at once.
+	// Ungood if the ZIP has huge files inside
+
+	// Go to the actual file and read the local header.
+	fseek(m_pFile, m_papDir[i]->hdrOffset, SEEK_SET);
+	TZipLocalHeader h;
+
+	memset(&h, 0, sizeof(h));
+	fread(&h, sizeof(h), 1, m_pFile);
+	if (h.sig != TZipLocalHeader::SIGNATURE)
+		return false;
+
+	// Skip extra fields
+	fseek(m_pFile, h.fnameLen + h.xtraLen, SEEK_CUR);
+
+	if (h.compression == Z_NO_COMPRESSION)
+	{
+		// Simply read in raw stored data.
+		fread(pBuf, h.cSize, 1, m_pFile);
+		return true;
+	}
+	else if (h.compression != Z_DEFLATED)
+		return false;
+
+	// Alloc compressed data buffer and read the whole stream
+	char *pcData = new char[h.cSize];
+	if (!pcData)
+		return false;
+
+	memset(pcData, 0, h.cSize);
+	fread(pcData, h.cSize, 1, m_pFile);
+
+	bool ret = true;
+
+	// Setup the inflate stream.
+	z_stream stream;
+	int err;
+
+	stream.next_in = (Bytef*)pcData;
+	stream.avail_in = (uInt)h.cSize;
+	stream.next_out = (Bytef*)pBuf;
+	stream.avail_out = (128 * 1024); //  read 128k at a time h.ucSize;
+	stream.zalloc = (alloc_func)0;
+	stream.zfree = (free_func)0;
+
+	// Perform inflation. wbits < 0 indicates no zlib header inside the data.
+	err = inflateInit2(&stream, -MAX_WBITS);
+	if (err == Z_OK)
+	{
+		uInt count = 0;
+		bool cancel = false;
+		while (stream.total_in < (uInt)h.cSize && !cancel)
+		{
+			err = inflate(&stream, Z_SYNC_FLUSH);
+			if (err == Z_STREAM_END)
+			{
+				err = Z_OK;
+				break;
+			}
+			else if (err != Z_OK)
+			{
+				assert(0 && "Something happened.");
+				break;
+			}
+
+			stream.avail_out = (128 * 1024);
+			stream.next_out += stream.total_out;
+
+			progressCallback(count * 100 / h.cSize, cancel);
+		}
+		inflateEnd(&stream);
+	}
+	if (err != Z_OK)
+		ret = false;
+
+	delete[] pcData;
+	return ret;
+}
 
 std::optional<int> ZipFile::Find(const std::string & path) const
 {
@@ -274,7 +272,7 @@ std::optional<int> ZipFile::Find(const std::string & path) const
 	// ( transform( 원소들을 가리키는 범위, 두 번째 인자들의 시작, 결과를 저장할 범위, 방식, 원소들을 전달할 단항 함수); )
 	ZipContentsMap::const_iterator i = m_ZipContentsMap.find(lowerCase);  // find -> 해당 하는 항목이 존재하는지 판단. 
 	if (i == m_ZipContentsMap.end()) // 존재하는지 확인 
-		return std::nullopt; // 존재하지 않음
+		return -1; // 존재하지 않음
 
 	return i->second; // i의 두번째 원소 value 리턴;
 }

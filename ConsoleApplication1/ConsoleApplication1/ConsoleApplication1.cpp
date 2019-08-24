@@ -5,6 +5,7 @@
 #include <iostream>
 #include "ZipFile.h"
 #include "Resource.h"
+#include "ResCache.h"
 
 int main()
 {
