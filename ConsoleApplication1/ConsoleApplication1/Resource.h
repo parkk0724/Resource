@@ -1,7 +1,17 @@
 #pragma once
 #include <vector>
-#define SAFE_DELETE(x) if(x) delete x; x=NULL;
+#include <algorithm>
+#include <windows.h>
+#include <memory.h>
+#include <cctype>
+#include <fstream>
+#include <map>
 
+#define SAFE_DELETE(x) if(x) delete x; x=NULL;
+typedef std::map<std::string, int> ZipContentsMap;
+
+class ResHandle;
+class ZipFile;
 
 class IResourceExtraData
 {
@@ -10,19 +20,50 @@ public:
 };
 
 class Resource
-{
+{s
 public:
 	std::string m_name;
-	Resource(const std::string & name)
-	{
-		m_name = name;
-		std::transform(m_name.begin(), m_name.end(), m_name.begin(), (int(*)(int))std::tolower);
-	}
+	Resource(const std::string & name);
 };
+
+class IResourceFile
+{
+public:
+	virtual bool VOpen() = 0;
+	virtual int VGetRawResourceSize(const Resource &r) = 0;
+	virtual int VGetRawResource(const Resource &r, char *buffer) = 0;
+	virtual int VGetNumResources() const = 0;
+	virtual std::string VGetResourceName(int num) const = 0;
+	virtual bool VIsUsingDevelopmentDirectories(void) const = 0;
+	virtual ~IResourceFile() { }
+};
+
+class IResourceLoader
+{
+public:
+	virtual std::string VGetPattern() = 0;
+	virtual bool VUseRawFile() = 0;
+	virtual bool VDiscardRawBufferAfterLoad() = 0;
+	virtual bool VAddNullZero() { return false; }
+	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) = 0;
+	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, std::shared_ptr<ResHandle> handle) = 0;
+};
+
+class DefalultResourceLoader : public IResourceLoader
+{
+public:
+	virtual bool VUseRawFile() { return true; }
+	virtual bool VDiscardRawBufferAfterLoad() { return true; }
+	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) { return rawSize; }
+	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, std::shared_ptr<ResHandle> handle) { return true; }
+	virtual std::string VGetPattern() { return "*"; }
+};
+
+
 
 class ResourceZipFile : public IResourceFile
 {
-	ZipFile *m_pZipFile;
+	ZipFile* m_pZipFile;
 	std::wstring m_resFileName;
 
 public:
@@ -65,40 +106,6 @@ public:
 protected:
 	void ReadAssetsDirectory(std::wstring fileSpec);
 };
-
-class IResourceFile
-{
-public:
-	virtual bool VOpen() = 0;
-	virtual int VGetRawResourceSize(const Resource &r) = 0;
-	virtual int VGetRawResource(const Resource &r, char *buffer) = 0;
-	virtual int VGetNumResources() const = 0;
-	virtual std::string VGetResourceName(int num) const = 0;
-	virtual bool VIsUsingDevelopmentDirectories(void) const = 0;
-	virtual ~IResourceFile() { }
-};
-
-class IResourceLoader
-{
-public:
-	virtual std::string VGetPattern() = 0;
-	virtual bool VUseRawFile() = 0;
-	virtual bool VDiscardRawBufferAfterLoad() = 0;
-	virtual bool VAddNullZero() { return false; }
-	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) = 0;
-	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, shared_ptr<ResHandle> handle) = 0;
-};
-
-class DefalultResourceLoader : public IResourceLoader
-{
-public:
-	virtual bool VUseRawFile() { return true; }
-	virtual bool VDiscardRawBufferAfterLoad() { return true; }
-	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) { return rawSize; }
-	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, shared_ptr<ResHandle> handle) { return true; }
-	virtual std::string VGetPattern() { return "*"; }
-};
-
 
 //리소스 사용 방법의 예
 /*

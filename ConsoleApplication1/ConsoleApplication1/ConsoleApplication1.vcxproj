@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Inha\Source\Repos\Resource\zlib-1.2.11;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\하잉\Documents\GitHub\Resource\zlib-1.2.11;C:\Users\Inha\Source\Repos\Resource\zlib-1.2.11;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -102,11 +102,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -157,12 +157,14 @@
   <ItemGroup>
     <ClInclude Include="ResCache.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp" />
     <ClCompile Include="ResCache.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="ZipFile.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

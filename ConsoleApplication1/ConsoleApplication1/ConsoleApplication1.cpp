@@ -1,7 +1,5 @@
 ﻿// ConsoleApplication1.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
 //
-
-#include "pch.h"
 #include <iostream>
 #include "ZipFile.h"
 #include "Resource.h"
@@ -9,18 +7,18 @@
 
 int main()
 {
-	//Resource 사용 예
-	// m_ResCache, g_pApp = GameCode 멤버변수
-	ResourceZipFile zipFile("Assets.zip");
-	ResCache resCache(50, zipFile);
-	if (m_ResCache.Init())
-	{
-		Resource resource("art\\brict.bmp");
-		std::shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
-		int size = texture->GetSize();
-		char *brickBitmap = (char*)texture->Buffer();
-	}
-		//do something cool with brickBitmap!
+	////Resource 사용 예
+	//// m_ResCache, g_pApp = GameCode 멤버변수
+	//ResourceZipFile zipFile("Assets.zip");
+	//ResCache resCache(50, zipFile);
+	//if (m_ResCache.Init())
+	//{
+	//	Resource resource("art\\brict.bmp");
+	//	std::shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
+	//	int size = texture->GetSize();
+	//	char *brickBitmap = (char*)texture->Buffer();
+	//}
+	//	//do something cool with brickBitmap!
 }
 
 // >> zipfile 사용 예

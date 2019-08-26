@@ -1,6 +1,17 @@
-#include "Resource.h"
 #include "ResCache.h"
 #include "ZipFile.h"
+#include "Resource.h"
+
+
+std::string ws2s(const std::wstring& s)
+{
+	int slength = (int)s.length() + 1;
+	int len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0) - 1;
+	std::string r(len, '\0');
+	WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, &r[0], len, 0, 0);
+	return r;
+}
+
 
 ResourceZipFile::~ResourceZipFile()
 {
@@ -20,7 +31,7 @@ bool ResourceZipFile::VOpen()
 int ResourceZipFile::VGetRawResourceSize(const Resource & r)
 {
 	std::optional<int> resourceNum = m_pZipFile->Find(r.m_name.c_str());
-	if (resourceNum.has_value)
+	if (resourceNum.has_value())
 		return -1;
 
 	return m_pZipFile->GetFileLen(resourceNum);
@@ -61,7 +72,7 @@ DevelopmentResourceZipFile::DevelopmentResourceZipFile(const std::wstring resFil
 	GetCurrentDirectory(MAX_PATH, dir);
 
 	m_AssetsDir = dir;
-	int lastSlash = m_AssetsDir.find_last_of(L"\\");
+	int lastSlash = (int)m_AssetsDir.find_last_of(L"\\");
 	m_AssetsDir = m_AssetsDir.substr(0, lastSlash);
 	m_AssetsDir += L"\\Assets\\";
 }
@@ -117,7 +128,7 @@ int DevelopmentResourceZipFile::VGetRawResource(const Resource & r, char * buffe
 		FILE *f = fopen(fullFileSpec.c_str(), "rb");
 		size_t bytes = fread(buffer, 1, m_AssetFileInfo[num].nFileSizeLow, f);
 		fclose(f);
-		return bytes;
+		return (int)bytes;
 	}
 
 	return ResourceZipFile::VGetRawResource(r, buffer);
@@ -125,7 +136,7 @@ int DevelopmentResourceZipFile::VGetRawResource(const Resource & r, char * buffe
 
 int DevelopmentResourceZipFile::VGetNumResources() const
 {
-	return (m_mode == Editor) ? m_AssetFileInfo.size() : ResourceZipFile::VGetNumResources();
+	return (m_mode == Editor) ? (int)m_AssetFileInfo.size() : (int)ResourceZipFile::VGetNumResources();
 }
 
 std::string DevelopmentResourceZipFile::VGetResourceName(int num) const
@@ -181,7 +192,7 @@ void DevelopmentResourceZipFile::ReadAssetsDirectory(std::wstring fileSpec)
 				std::wstring lower = fileName;
 				std::transform(lower.begin(), lower.end(), lower.begin(), (int(*)(int)) std::tolower);
 				wcscpy_s(&findData.cFileName[0], MAX_PATH, lower.c_str());
-				m_DirectoryContentsMap[ws2s(lower)] = m_AssetFileInfo.size();
+				m_DirectoryContentsMap[ws2s(lower)] = (int)m_AssetFileInfo.size();
 				m_AssetFileInfo.push_back(findData);
 			}
 		}

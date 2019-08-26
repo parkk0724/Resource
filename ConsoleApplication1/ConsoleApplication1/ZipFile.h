@@ -12,6 +12,7 @@
 
 //This maps a path to zip content id - zip 알림 ID에 대한 경로를 매핑
 typedef std::map<std::string, int> ZipContentsMap;
+
 class ZipFile
 {
 public:

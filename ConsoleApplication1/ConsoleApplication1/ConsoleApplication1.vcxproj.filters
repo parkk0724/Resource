@@ -22,6 +22,9 @@
     <Filter Include="소스 파일\Resource\ZipFile">
       <UniqueIdentifier>{c070981e-b433-4b08-8918-c64282d501f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\TinyXml2">
+      <UniqueIdentifier>{f5e4d0f1-7654-4cf2-8ebd-738ba1a466e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZipFile.h">
@@ -32,6 +35,9 @@
     </ClInclude>
     <ClInclude Include="ResCache.h">
       <Filter>소스 파일\Resource\ResCache</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml2.h">
+      <Filter>소스 파일\TinyXml2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="ResCache.cpp">
       <Filter>소스 파일\Resource\ResCache</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>소스 파일\TinyXml2</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
