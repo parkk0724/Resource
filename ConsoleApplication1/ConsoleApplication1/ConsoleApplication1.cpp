@@ -7,18 +7,17 @@
 
 int main()
 {
-	////Resource 사용 예
-	//// m_ResCache, g_pApp = GameCode 멤버변수
-	//ResourceZipFile zipFile("Assets.zip");
-	//ResCache resCache(50, zipFile);
-	//if (m_ResCache.Init())
-	//{
-	//	Resource resource("art\\brict.bmp");
-	//	std::shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
-	//	int size = texture->GetSize();
-	//	char *brickBitmap = (char*)texture->Buffer();
-	//}
-	//	//do something cool with brickBitmap!
+	//Resource 사용 예
+	ResourceZipFile * zipFile = new ResourceZipFile(L"Assets.zip");
+	ResCache resCache(50, zipFile);
+	if (resCache.Init())
+	{
+		Resource resource("Art\\Grid.bmp");
+		std::shared_ptr<ResHandle> texture = resCache.GetHandle(&resource);
+		int size = texture->GetSize();
+		char *brickBitmap = (char*)texture->GetBuffer();
+	}
+		//do something cool with brickBitmap!
 }
 
 // >> zipfile 사용 예

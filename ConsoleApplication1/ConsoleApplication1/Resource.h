@@ -6,6 +6,7 @@
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <string>
 
 #define SAFE_DELETE(x) if(x) delete x; x=NULL;
 typedef std::map<std::string, int> ZipContentsMap;
@@ -20,7 +21,7 @@ public:
 };
 
 class Resource
-{s
+{
 public:
 	std::string m_name;
 	Resource(const std::string & name);

@@ -1,19 +1,11 @@
 #pragma once
+#include "Resource.h"
 #include <list>
-#include <map>
-#include <memory>
 #include <assert.h>
-#include <cctype>
-#include <vector>
 #include <string>
-#include <algorithm>
 #define SAFE_DELETE_ARRAY(x) if(x) delete[] x; x = NULL;
 
 
-class Resource;
-class IResourceExtraData;
-class IResourceLoader;
-class IResourceFile;
 class ResCache;
 
 class ResHandle
@@ -31,8 +23,8 @@ public:
 	ResHandle(Resource & resource, char * buffer, unsigned int size, ResCache * pResCache);
 	virtual ~ResHandle();
 
-	unsigned int Size() const { return m_size; }
-	char *buffer() const { return m_buffer; }
+	unsigned int GetSize() const { return m_size; }
+	char *GetBuffer() const { return m_buffer; }
 	char *WritableBuffer() { return m_buffer; }
 	std::shared_ptr<IResourceExtraData>GetExtra() { return m_extra; }
 	void SetExtra(std::shared_ptr<IResourceExtraData> extra) { m_extra = extra; }

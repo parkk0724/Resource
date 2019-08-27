@@ -228,7 +228,7 @@
       <Culture>0x040c</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MACHINE:I386 /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>..\..\masmx86\match686.obj;..\..\masmx86\inffas32.obj;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)zlibwapi.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -392,6 +392,7 @@ bld_ml32.bat</Command>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)zlibwapi.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cd ..\..\contrib\masmx64

@@ -1,4 +1,3 @@
-#include "Resource.h"
 #include "ResCache.h"
 
 bool WildcardMatch(const char *pat, const char *str) {

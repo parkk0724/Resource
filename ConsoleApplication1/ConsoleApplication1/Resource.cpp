@@ -2,7 +2,6 @@
 #include "ZipFile.h"
 #include "Resource.h"
 
-
 std::string ws2s(const std::wstring& s)
 {
 	int slength = (int)s.length() + 1;
@@ -31,7 +30,7 @@ bool ResourceZipFile::VOpen()
 int ResourceZipFile::VGetRawResourceSize(const Resource & r)
 {
 	std::optional<int> resourceNum = m_pZipFile->Find(r.m_name.c_str());
-	if (resourceNum.has_value())
+	if (!resourceNum.has_value())
 		return -1;
 
 	return m_pZipFile->GetFileLen(resourceNum);
@@ -199,4 +198,10 @@ void DevelopmentResourceZipFile::ReadAssetsDirectory(std::wstring fileSpec)
 	}
 
 	FindClose(fileHandle);
+}
+
+Resource::Resource(const std::string & name)
+{
+	m_name = name;
+	std::transform(m_name.begin(), m_name.end(), m_name.begin(), (int(*)(int)) std::tolower);
 }
