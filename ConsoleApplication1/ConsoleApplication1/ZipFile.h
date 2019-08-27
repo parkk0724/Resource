@@ -15,35 +15,34 @@ typedef std::map<std::string, int> ZipContentsMap;
 
 class ZipFile
 {
-public:
-	ZipFile() { m_nEntries = 0; m_pFile = NULL; m_pDirData = NULL; };
-	virtual ~ZipFile() { End(); fclose(m_pFile); }
-
-	bool Init(const std::wstring&resFileName);
-	void End();
-
-	int GetNumFiles()const { return m_nEntries; }
-	std::string GetFilename(int i) const;
-	int GetFileLen(std::optional<int> i)const;
-	bool ReadFile(int i, void *pBuf);
-
-	//Added to show multi-threaded decompression - 멀티버퍼 압축해제
-	bool ReadLargeFile(int i, void *pBuf, void(*progressCallback)(int, bool &));
-	std::optional<int> Find(const std::string &path) const;
-	
-	ZipContentsMap m_ZipContentsMap;
-
+	//선언
 private:
 	struct TZipDirHeader;
 	struct TZipDirFileHeader;
 	struct TZipLocalHeader;
+	//멤버 함수
+public:
+	ZipFile();
+	virtual ~ZipFile();
+	bool Init(const std::wstring&resFileName);
+	void End();
+	int GetNumFiles()const;
+	std::string GetFilename(int i) const;
+	int GetFileLen(std::optional<int> i)const;
+	bool ReadFile(int i, void *pBuf);
+	//Added to show multi-threaded decompression - 멀티버퍼 압축해제
+	bool ReadLargeFile(int i, void *pBuf, void(*progressCallback)(int, bool &));
+	std::optional<int> Find(const std::string &path) const;
 
-	FILE * m_pFile;		// Zip file - 압축파일
-	char *m_pDirData;	// Raw data buffer. - 윈시 데이터 버퍼
-	int m_nEntries;		// Number of entries. - 참여자 수
-
+	//멤버 변수
+public:
+	ZipContentsMap zipContentsMap_;
+private:
+	FILE * file_;		// Zip file - 압축파일
+	char *dirData_;	// Raw data buffer. - 윈시 데이터 버퍼
+	int entries_;		// Number of entries. - 참여자 수
 	// Pointers to the dir entries in pDirData. - pDirData의 디렉토리 항목
-	const TZipDirFileHeader **m_papDir;
+	const TZipDirFileHeader **dir_;
 };
 
 // --------------------------------------------------------------------------------
@@ -63,7 +62,7 @@ struct ZipFile::TZipLocalHeader
 {
 	enum
 	{
-		SIGNATURE = 0x04034b50
+		Signature = 0x04034b50
 	};
 	dword sig;
 	word version;
@@ -80,7 +79,10 @@ struct ZipFile::TZipLocalHeader
 
 struct ZipFile::TZipDirHeader
 {
-	enum { SIGNATURE = 0x06054b50};
+	enum 
+	{
+		Signature = 0x06054b50
+	};
 	dword sig;
 	word nDisk;
 	word nStartDisk;
@@ -93,7 +95,10 @@ struct ZipFile::TZipDirHeader
 
 struct ZipFile::TZipDirFileHeader
 {
-	enum { SIGNATURE = 0x02014b50};
+	enum 
+	{ 
+		Signature = 0x02014b50
+	};
 	dword sig;
 	word verMade;
 	word verNeeded;
@@ -112,10 +117,9 @@ struct ZipFile::TZipDirFileHeader
 	dword extAttr;
 	dword hdrOffset;
 
-	char *GetName() const { return (char*)(this + 1); }
-	char *GetExtra() const { return GetName() + fnameLen; }
-	char *GetComment() const { return GetExtra() + xtraLen; }
-
+	char *GetName() const;
+	char *GetExtra() const;
+	char *GetComment() const;
 };
 // --------------------------------------------------------------------------------
 #pragma pack()

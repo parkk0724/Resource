@@ -3,17 +3,17 @@
 #include <iostream>
 #include "ZipFile.h"
 #include "Resource.h"
-#include "ResCache.h"
+#include "ResourceCache.h"
 
 int main()
 {
 	//Resource 사용 예
 	ResourceZipFile * zipFile = new ResourceZipFile(L"Assets.zip");
-	ResCache resCache(50, zipFile);
-	if (resCache.Init())
+	ResourceCache ResourceCache(50, zipFile);
+	if (ResourceCache.Init())
 	{
-		Resource resource("Art\\Grid.bmp");
-		std::shared_ptr<ResHandle> texture = resCache.GetHandle(&resource);
+		Resource Resource("Art\\Grid.bmp");
+		std::shared_ptr<ResourceHandle> texture = ResourceCache.GetHandle(&Resource);
 		int size = texture->GetSize();
 		char *brickBitmap = (char*)texture->GetBuffer();
 	}
@@ -24,7 +24,7 @@ int main()
 char* ZIPFile() {
 	char *buffer = NULL;
 	ZipFile zipFile;
-	if (zipFile.Init(L"resFileName"))
+	if (zipFile.Init(L"ResourceFileName"))
 	{
 		std::optional<int> index = zipFile.Find("path");
 		if (index.has_value()) // 값이 있는지 확인
@@ -42,8 +42,8 @@ char* ZIPFile() {
 
 //Caching Resources into DirectX et al.
 /*
-	Resource resource(m_params.m_Texture);
-	std::shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
+	Resource Resource(m_params.m_Texture);
+	std::shared_ptr<ResourceHandle> texture = g_pApp->m_ResourceCache->GetHandle(&Resource);
 	if( FAILED(
 		D3DXCreateTextureFromFileInMemory(
 			DXUTGetD3D9Device(),

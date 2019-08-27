@@ -1,4 +1,4 @@
-#include "ResCache.h"
+#include "ResourceCache.h"
 #include "ZipFile.h"
 #include "Resource.h"
 
@@ -14,77 +14,77 @@ std::string ws2s(const std::wstring& s)
 
 ResourceZipFile::~ResourceZipFile()
 {
-	SAFE_DELETE(m_pZipFile);
+	SAFE_DELETE(zipFile_);
 }
 
 bool ResourceZipFile::VOpen()
 {
-	m_pZipFile = new ZipFile;
-	if (m_pZipFile)
+	zipFile_ = new ZipFile;
+	if (zipFile_)
 	{
-		return m_pZipFile->Init(m_resFileName.c_str());
+		return zipFile_->Init(resourceFileName_.c_str());
 	}
 	return false;
 }
 
 int ResourceZipFile::VGetRawResourceSize(const Resource & r)
 {
-	std::optional<int> resourceNum = m_pZipFile->Find(r.m_name.c_str());
-	if (!resourceNum.has_value())
+	std::optional<int> ResourceNum = zipFile_->Find(r.m_name.c_str());
+	if (!ResourceNum.has_value())
 		return -1;
 
-	return m_pZipFile->GetFileLen(resourceNum);
+	return zipFile_->GetFileLen(ResourceNum);
 }
 
 int ResourceZipFile::VGetRawResource(const Resource & r, char * buffer)
 {
 	int size = 0;
-	std::optional<int> resourceNum = m_pZipFile->Find(r.m_name.c_str());
-	if (resourceNum.has_value())
+	std::optional<int> ResourceNum = zipFile_->Find(r.m_name.c_str());
+	if (ResourceNum.has_value())
 	{
-		size = m_pZipFile->GetFileLen(*resourceNum);
-		m_pZipFile->ReadFile(*resourceNum, buffer);
+		size = zipFile_->GetFileLen(*ResourceNum);
+		zipFile_->ReadFile(*ResourceNum, buffer);
 	}
 	return size;
 }
 
 int ResourceZipFile::VGetNumResources() const
 {
-	return (m_pZipFile == NULL) ? 0 : m_pZipFile->GetNumFiles();
+	return (zipFile_ == NULL) ? 0 : zipFile_->GetNumFiles();
 }
 
 std::string ResourceZipFile::VGetResourceName(int num) const
 {
-	std::string resName = "";
-	if (m_pZipFile != NULL && num >= 0 && num < m_pZipFile->GetNumFiles())
+	std::string ResourceName = "";
+	if (zipFile_ != NULL && num >= 0 && num < zipFile_->GetNumFiles())
 	{
-		resName = m_pZipFile->GetFilename(num);
+		ResourceName = zipFile_->GetFilename(num);
 	}
-	return resName;
+	return ResourceName;
 }
 
-DevelopmentResourceZipFile::DevelopmentResourceZipFile(const std::wstring resFileName, const Mode mode) : ResourceZipFile(resFileName)
+DevelopmentResourceZipFile::DevelopmentResourceZipFile(const std::wstring ResourceFileName, const Mode mode) : ResourceZipFile(ResourceFileName)
 {
-	m_mode = mode;
+	mode_ = mode;
 
 	TCHAR dir[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, dir);
 
-	m_AssetsDir = dir;
-	int lastSlash = (int)m_AssetsDir.find_last_of(L"\\");
-	m_AssetsDir = m_AssetsDir.substr(0, lastSlash);
-	m_AssetsDir += L"\\Assets\\";
+	assetsDir_ = dir;
+	int lastSlash = (int)assetsDir_.find_last_of(L"\\");
+	assetsDir_ = assetsDir_.substr(0, lastSlash);
+	assetsDir_ += L"\\Assets\\";
 }
 
 bool DevelopmentResourceZipFile::VOpen()
 {
-	if (m_mode != Editor)
+	if (mode_ != Editor)
 	{
 		ResourceZipFile::VOpen();
 	}
 
 	// open the asset directory and read in the non-hidden contents
-	if (m_mode == Editor)
+	if (mode_ == Editor)
 	{
 		ReadAssetsDirectory(L"*");
 	}
@@ -103,13 +103,13 @@ int DevelopmentResourceZipFile::VGetRawResourceSize(const Resource & r)
 {
 	int size = 0;
 
-	if (m_mode == Editor)
+	if (mode_ == Editor)
 	{
 		int num = Find(r.m_name.c_str());
 		if (num == -1)
 			return -1;
 
-		return m_AssetFileInfo[num].nFileSizeLow;
+		return assetFileInfo_[num].nFileSizeLow;
 	}
 
 	return ResourceZipFile::VGetRawResourceSize(r);
@@ -117,15 +117,15 @@ int DevelopmentResourceZipFile::VGetRawResourceSize(const Resource & r)
 
 int DevelopmentResourceZipFile::VGetRawResource(const Resource & r, char * buffer)
 {
-	if (m_mode == Editor)
+	if (mode_ == Editor)
 	{
 		int num = Find(r.m_name.c_str());
 		if (num == -1)
 			return -1;
 
-		std::string fullFileSpec = ws2s(m_AssetsDir) + r.m_name.c_str();
+		std::string fullFileSpec = ws2s(assetsDir_) + r.m_name.c_str();
 		FILE *f = fopen(fullFileSpec.c_str(), "rb");
-		size_t bytes = fread(buffer, 1, m_AssetFileInfo[num].nFileSizeLow, f);
+		size_t bytes = fread(buffer, 1, assetFileInfo_[num].nFileSizeLow, f);
 		fclose(f);
 		return (int)bytes;
 	}
@@ -135,14 +135,14 @@ int DevelopmentResourceZipFile::VGetRawResource(const Resource & r, char * buffe
 
 int DevelopmentResourceZipFile::VGetNumResources() const
 {
-	return (m_mode == Editor) ? (int)m_AssetFileInfo.size() : (int)ResourceZipFile::VGetNumResources();
+	return (mode_ == Editor) ? (int)assetFileInfo_.size() : (int)ResourceZipFile::VGetNumResources();
 }
 
 std::string DevelopmentResourceZipFile::VGetResourceName(int num) const
 {
-	if (m_mode == Editor)
+	if (mode_ == Editor)
 	{
-		std::wstring wideName = m_AssetFileInfo[num].cFileName;
+		std::wstring wideName = assetFileInfo_[num].cFileName;
 		return ws2s(wideName);
 	}
 
@@ -153,8 +153,8 @@ int DevelopmentResourceZipFile::Find(const std::string & name)
 {
 	std::string lowerCase = name;
 	std::transform(lowerCase.begin(), lowerCase.end(), lowerCase.begin(), (int(*)(int)) std::tolower);
-	ZipContentsMap::const_iterator i = m_DirectoryContentsMap.find(lowerCase);
-	if (i == m_DirectoryContentsMap.end())
+	ZipContentsMap::const_iterator i = directoryContentsMap_.find(lowerCase);
+	if (i == directoryContentsMap_.end())
 		return -1;
 
 	return i->second;
@@ -166,7 +166,7 @@ void DevelopmentResourceZipFile::ReadAssetsDirectory(std::wstring fileSpec)
 	WIN32_FIND_DATA findData;
 
 	// get first file
-	std::wstring pathSpec = m_AssetsDir + fileSpec;
+	std::wstring pathSpec = assetsDir_ + fileSpec;
 	fileHandle = FindFirstFile(pathSpec.c_str(), &findData);
 	if (fileHandle != INVALID_HANDLE_VALUE)
 	{
@@ -191,8 +191,8 @@ void DevelopmentResourceZipFile::ReadAssetsDirectory(std::wstring fileSpec)
 				std::wstring lower = fileName;
 				std::transform(lower.begin(), lower.end(), lower.begin(), (int(*)(int)) std::tolower);
 				wcscpy_s(&findData.cFileName[0], MAX_PATH, lower.c_str());
-				m_DirectoryContentsMap[ws2s(lower)] = (int)m_AssetFileInfo.size();
-				m_AssetFileInfo.push_back(findData);
+				directoryContentsMap_[ws2s(lower)] = (int)assetFileInfo_.size();
+				assetFileInfo_.push_back(findData);
 			}
 		}
 	}

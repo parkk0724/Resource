@@ -156,14 +156,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ResCache.h" />
+    <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp" />
-    <ClCompile Include="ResCache.cpp" />
+    <ClCompile Include="ResourceCache.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="ZipFile.cpp" />

@@ -11,24 +11,29 @@
 #define SAFE_DELETE(x) if(x) delete x; x=NULL;
 typedef std::map<std::string, int> ZipContentsMap;
 
-class ResHandle;
+class ResourceHandle;
 class ZipFile;
 
 class IResourceExtraData
 {
+	// ¸É¹ö ÇÔ¼ö
 public:
 	virtual std::string VToString() = 0;
 };
 
 class Resource
 {
+	// ¸â¹ö ÇÔ¼ö
+public:
+	Resource(const std::string & name);
+	// ¸â¹ö º¯¼ö
 public:
 	std::string m_name;
-	Resource(const std::string & name);
 };
 
 class IResourceFile
 {
+	// ¸â¹ö ÇÔ¼ö
 public:
 	virtual bool VOpen() = 0;
 	virtual int VGetRawResourceSize(const Resource &r) = 0;
@@ -41,22 +46,24 @@ public:
 
 class IResourceLoader
 {
+	// ¸â¹ö ÇÔ¼ö
 public:
 	virtual std::string VGetPattern() = 0;
 	virtual bool VUseRawFile() = 0;
 	virtual bool VDiscardRawBufferAfterLoad() = 0;
 	virtual bool VAddNullZero() { return false; }
 	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) = 0;
-	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, std::shared_ptr<ResHandle> handle) = 0;
+	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, std::shared_ptr<ResourceHandle> handle) = 0;
 };
 
 class DefalultResourceLoader : public IResourceLoader
 {
+	// ¸â¹ö ÇÔ¼ö
 public:
 	virtual bool VUseRawFile() { return true; }
 	virtual bool VDiscardRawBufferAfterLoad() { return true; }
 	virtual unsigned int VGetLoadedResourceSize(char *rawBuffer, unsigned int rawSize) { return rawSize; }
-	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, std::shared_ptr<ResHandle> handle) { return true; }
+	virtual bool VLoadResource(char *rawBuffer, unsigned int rawSize, std::shared_ptr<ResourceHandle> handle) { return true; }
 	virtual std::string VGetPattern() { return "*"; }
 };
 
@@ -64,23 +71,26 @@ public:
 
 class ResourceZipFile : public IResourceFile
 {
-	ZipFile* m_pZipFile;
-	std::wstring m_resFileName;
-
+	// ¸â¹ö ÇÔ¼ö
 public:
-	ResourceZipFile(const std::wstring resFileName) { m_pZipFile = NULL; m_resFileName = resFileName; }
+	ResourceZipFile(const std::wstring ResourceFileName) { zipFile_ = NULL; resourceFileName_ = ResourceFileName; }
 	virtual ~ResourceZipFile();
-
 	virtual bool VOpen();
 	virtual int VGetRawResourceSize(const Resource &r);
 	virtual int VGetRawResource(const Resource &r, char *buffer);
 	virtual int VGetNumResources() const;
 	virtual std::string VGetResourceName(int num) const;
 	virtual bool VIsUsingDevelopmentDirectories(void) const { return false; }
+
+	// ¸â¹ö º¯¼ö
+private:
+	ZipFile* zipFile_;
+	std::wstring resourceFileName_;
 };
 
 class DevelopmentResourceZipFile : public ResourceZipFile
 {
+	//¼±¾ð
 public:
 	enum Mode
 	{
@@ -88,30 +98,31 @@ public:
 		Editor			// this mode only checks the original asset directory - the ZIP file is left unopened.
 	};
 
-	Mode m_mode;
-	std::wstring m_AssetsDir;
-	std::vector<WIN32_FIND_DATA> m_AssetFileInfo;
-	ZipContentsMap m_DirectoryContentsMap;
-
-	DevelopmentResourceZipFile(const std::wstring resFileName, const Mode mode);
-
+	// ¸â¹ö ÇÔ¼ö
+public:
+	DevelopmentResourceZipFile(const std::wstring ResourceFileName, const Mode mode);
 	virtual bool VOpen();
 	virtual int VGetRawResourceSize(const Resource &r);
 	virtual int VGetRawResource(const Resource &r, char *buffer);
 	virtual int VGetNumResources() const;
 	virtual std::string VGetResourceName(int num) const;
 	virtual bool VIsUsingDevelopmentDirectories(void) const { return true; }
-
 	int Find(const std::string &path);
-
 protected:
 	void ReadAssetsDirectory(std::wstring fileSpec);
+
+	// ¸â¹ö º¯¼ö
+public:
+	Mode mode_;
+	std::wstring assetsDir_;
+	std::vector<WIN32_FIND_DATA> assetFileInfo_;
+	ZipContentsMap directoryContentsMap_;
 };
 
 //¸®¼Ò½º »ç¿ë ¹æ¹ýÀÇ ¿¹
 /*
-	Resource resource ("Brick.bmp");
-	shared_ptr<ResHandle> texture = g_pApp->m_ResCache->GetHandle(&resource);
+	Resource Resource ("Brick.bmp");
+	shared_ptr<ResourceHandle> texture = g_pApp->m_ResourceCache->GetHandle(&Resource);
 	int size = texture->GetSize();
 	char *brickBitmap = (char*) texture->Buffer();
 */

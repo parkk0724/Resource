@@ -33,11 +33,11 @@
     <ClInclude Include="Resource.h">
       <Filter>소스 파일\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="ResCache.h">
-      <Filter>소스 파일\Resource\ResCache</Filter>
-    </ClInclude>
     <ClInclude Include="tinyxml2.h">
       <Filter>소스 파일\TinyXml2</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceCache.h">
+      <Filter>소스 파일\Resource\ResCache</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -50,11 +50,11 @@
     <ClCompile Include="Resource.cpp">
       <Filter>소스 파일\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="ResCache.cpp">
-      <Filter>소스 파일\Resource\ResCache</Filter>
-    </ClCompile>
     <ClCompile Include="tinyxml2.cpp">
       <Filter>소스 파일\TinyXml2</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceCache.cpp">
+      <Filter>소스 파일\Resource\ResCache</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
