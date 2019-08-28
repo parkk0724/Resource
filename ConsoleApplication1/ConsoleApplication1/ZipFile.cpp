@@ -14,7 +14,7 @@ ZipFile::~ZipFile()
 
 bool ZipFile::Init(const std::wstring & resFileName)
 {
-	End();
+	End(); // 비워줌
 
 	_wfopen_s(&file_, resFileName.c_str(), L"rb"); // _wfopen_s -> 유니코드로 된 파일을 불러올 때 ( _wfopen_s(파일포인터, 파일이름, 모드); )
 	// rb -> r + b >> r(읽기모드), b(binary[이진모드])

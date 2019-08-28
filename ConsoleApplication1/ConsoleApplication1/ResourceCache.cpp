@@ -96,7 +96,7 @@ bool ResourceCache::Init()
 	bool retValue = false;
 	if (file_->VOpen())
 	{
-		RegisterLoader(std::shared_ptr<IResourceLoader>(new DefalultResourceLoader()));
+		RegisterLoader(std::shared_ptr<IResourceLoader>(new DefalultResourceLoader())); //기본 리소스 로더를 생성하여 멤버변수 resourceLoaders_에 추가.
 		retValue = true;
 	}
 	return retValue;
@@ -109,8 +109,8 @@ void ResourceCache::RegisterLoader(std::shared_ptr<IResourceLoader> loader)
 
 std::shared_ptr<ResourceHandle> ResourceCache::GetHandle(Resource * r)
 {
-	std::shared_ptr<ResourceHandle> handle(Find(r));
-	if (handle == NULL)
+	std::shared_ptr<ResourceHandle> handle(Find(r)); // 핸들에 같은 리소스가 있는지 확인 하고 있으면 있는것으로 핸들이 채워지고 없으면 새로 만들어진 null핸들이 채워진다.
+	if (handle == NULL) // 핸들이 비어있으면
 	{
 		handle = Load(r);
 		assert(handle);
@@ -212,11 +212,11 @@ std::shared_ptr<ResourceHandle> ResourceCache::Load(Resource * r)
 
 std::shared_ptr<ResourceHandle> ResourceCache::Find(Resource * r)
 {
-	ResourceHandleMap::iterator i = resources_.find(r->m_name);
-	if (i == resources_.end())
+	ResourceHandleMap::iterator i = resources_.find(r->m_name); // 같은것이 있는지 찾는다.
+	if (i == resources_.end()) // 끝까지 찾아봤는데 없음.
 		return std::shared_ptr<ResourceHandle>();
 
-	return i->second;
+	return i->second; //있음
 }
 
 //
