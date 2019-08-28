@@ -110,7 +110,7 @@ void ResourceCache::RegisterLoader(std::shared_ptr<IResourceLoader> loader)
 std::shared_ptr<ResourceHandle> ResourceCache::GetHandle(Resource * r)
 {
 	std::shared_ptr<ResourceHandle> handle(Find(r)); // 핸들에 같은 리소스가 있는지 확인 하고 있으면 있는것으로 핸들이 채워지고 없으면 새로 만들어진 null핸들이 채워진다.
-	if (handle == NULL) // 핸들이 비어있으면
+	if (handle == NULL) // 찾는 리소스가 없으면
 	{
 		handle = Load(r);
 		assert(handle);
@@ -133,7 +133,7 @@ std::shared_ptr<ResourceHandle> ResourceCache::Load(Resource * r)
 	{
 		std::shared_ptr<IResourceLoader> testLoader = *it;
 
-		if (WildcardMatch(testLoader->VGetPattern().c_str(), r->m_name.c_str()))
+		if (WildcardMatch(testLoader->VGetPattern().c_str(), r->m_name.c_str())) // c_str() -> 반환형이 char* string의 첫번째 문자 주소값을 반환
 		{
 			loader = testLoader;
 			break;
@@ -153,8 +153,8 @@ std::shared_ptr<ResourceHandle> ResourceCache::Load(Resource * r)
 		return std::shared_ptr<ResourceHandle>();
 	}
 
-	int allocSize = rawSize + ((loader->VAddNullZero()) ? (1) : (0));
-	char *rawBuffer = loader->VUseRawFile() ? Allocate(allocSize) : new char[allocSize];
+	int allocSize = rawSize + ((loader->VAddNullZero()) ? (1) : (0)); // ???
+	char *rawBuffer = loader->VUseRawFile() ? Allocate(allocSize) : new char[allocSize]; // ???
 	memset(rawBuffer, 0, allocSize);
 
 	if (rawBuffer == NULL || file_->VGetRawResource(*r, rawBuffer) == 0)
