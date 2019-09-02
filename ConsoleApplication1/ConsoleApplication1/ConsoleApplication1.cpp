@@ -16,6 +16,11 @@ int main()
 		std::shared_ptr<ResourceHandle> texture = ResourceCache.GetHandle(&Resource);
 		int size = texture->GetSize();
 		char *brickBitmap = (char*)texture->GetBuffer();
+
+		Resource.m_name = "Art\\Sky2_E.jpg";
+		texture = ResourceCache.GetHandle(&Resource);
+		int size2 = texture->GetSize();
+		char *brickBitmap2 = (char*)texture->GetBuffer();
 	}
 		//do something cool with brickBitmap!
 }
